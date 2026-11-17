@@ -110,6 +110,29 @@
       100% { transform: translateY(-105vh) scale(1.1); opacity: 0; }
     }
 
+    /* Burst love-love when clicking Tap for a little luck */
+    .burst-heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 999;
+      user-select: none;
+      animation: burstFloat 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes burstFloat {
+      0% {
+        transform: translate(0, 0) scale(0.4) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.95;
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(1.15) rotate(var(--rot));
+        opacity: 0;
+      }
+    }
+
     .serif {
       font-family: "Georgia", "Times New Roman", "Palatino Linotype", serif;
     }
@@ -297,6 +320,10 @@
       background: var(--dusty-rose-dark);
       transform: translateY(-2px);
       box-shadow: 0 8px 22px rgba(168, 100, 110, 0.38);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
     }
 
     .btn-subtle {
@@ -597,6 +624,7 @@
       padding: 34px 24px;
       text-align: center;
       box-shadow: 0 14px 36px rgba(120, 88, 92, 0.08);
+      position: relative;
     }
 
     .final-highlight {
@@ -879,7 +907,7 @@
       });
     });
 
-    // Little luck button
+    // Little luck button with love-love burst animation
     const boosts = [
       "Sending an extra wave of calm and steady energy your way today! 🌿",
       "Reminder: You’ve trained for this. Trust yourself out there! ✨",
@@ -890,9 +918,41 @@
     const boostBtn = document.getElementById("boostBtn");
     const boostDisplay = document.getElementById("boostDisplay");
 
+    function spawnLoveBurst(originEl) {
+      const rect = originEl.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const icons = ["♡", "♥", "🤍", "♡"];
+      const count = 12;
+
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement("span");
+        el.className = "burst-heart";
+        el.textContent = icons[i % icons.length];
+
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const distance = 65 + Math.random() * 75;
+        const dx = Math.cos(angle) * distance + "px";
+        const dy = (Math.sin(angle) * distance - 55) + "px";
+        const rot = (Math.random() * 50 - 25) + "deg";
+
+        el.style.left = centerX + "px";
+        el.style.top = centerY + "px";
+        el.style.color = i % 3 === 0 ? "#a8646e" : "#c7858e";
+        el.style.fontSize = (14 + Math.random() * 10) + "px";
+        el.style.setProperty("--dx", dx);
+        el.style.setProperty("--dy", dy);
+        el.style.setProperty("--rot", rot);
+
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1550);
+      }
+    }
+
     boostBtn.addEventListener("click", () => {
       boostDisplay.textContent = boosts[boostIndex % boosts.length];
       boostIndex++;
+      spawnLoveBurst(boostBtn);
     });
   </script>
 </body>

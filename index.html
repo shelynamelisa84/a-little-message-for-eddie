@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Little Message for Eddie</title>
+  <style>
+    :root {
+      --ivory: #fcf9f5;
+      --beige: #f3eae0;
+      --blush: #f6e2e4;
+      --dusty-rose: #c98a92;
+      --dusty-rose-dark: #b06f78;
+      --text-main: #4a3f41;
+      --text-soft: #756568;
+      --card-bg: rgba(255, 253, 250, 0.92);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: linear-gradient(145deg, var(--ivory) 0%, var(--beige) 55%, var(--blush) 100%);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Subtle floating hearts */
+    .floating-hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -30px;
+      color: var(--dusty-rose);
+      opacity: 0;
+      animation: floatUp linear infinite;
+      user-select: none;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(0.9);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.35;
+      }
+      85% {
+        opacity: 0.25;
+      }
+      100% {
+        transform: translateY(-105vh) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    /* Main container */
+    .container {
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Typography */
+    .serif {
+      font-family: "Georgia", "Times New Roman", "Palatino Linotype", serif;
+    }
+
+    /* PAGE 1: Welcome & Envelope */
+    .welcome-card {
+      text-align: center;
+      padding: 36px 24px;
+    }
+
+    .floral-accent {
+      width: 90px;
+      height: auto;
+      margin: 0 auto 14px;
+      display: block;
+      opacity: 0.85;
+    }
+
+    .welcome-title {
+      font-size: 2rem;
+      font-weight: normal;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      letter-spacing: 0.4px;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-soft);
+      margin-bottom: 34px;
+      line-height: 1.5;
+    }
+
+    /* Cute Envelope Illustration */
+    .envelope-wrapper {
+      position: relative;
+      width: 240px;
+      height: 155px;
+      margin: 0 auto 32px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:hover {
+      transform: translateY(-4px);
+    }
+
+    .envelope-back {
+      position: absolute;
+      inset: 0;
+      background: #ebd8d9;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(176, 111, 120, 0.16);
+    }
+
+    .envelope-letter-preview {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 10px;
+      height: 125px;
+      background: #fffdfb;
+      border-radius: 8px;
+      padding: 16px 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .preview-line {
+      height: 6px;
+      background: #f0e3e4;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .envelope-front {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .envelope-front::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 120px solid #f5e5e6;
+      border-right: 120px solid #f0dcde;
+      border-bottom: 85px solid #edd4d7;
+      border-top: 70px solid transparent;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 120px solid transparent;
+      border-right: 120px solid transparent;
+      border-top: 88px solid #e4c4c8;
+      transform-origin: top center;
+      transition: transform 0.65s ease, z-index 0.2s ease;
+      z-index: 4;
+    }
+
+    .envelope-seal {
+      position: absolute;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 34px;
+      height: 34px;
+      background: var(--dusty-rose);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 4px 10px rgba(176, 111, 120, 0.3);
+      z-index: 5;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    /* Open state animation */
+    .envelope-wrapper.open .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-wrapper.open .envelope-seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.7);
+    }
+
+    .envelope-wrapper.open .envelope-letter-preview {
+      transform: translateY(-48px);
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--dusty-rose);
+      color: #ffffff;
+      border: none;
+      padding: 13px 28px;
+      border-radius: 999px;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(201, 138, 146, 0.32);
+      transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    }
+
+    .btn:hover {
+      background: var(--dusty-rose-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(176, 111, 120, 0.38);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-subtle {
+      background: transparent;
+      color: var(--dusty-rose-dark);
+      border: 1.5px solid var(--dusty-rose);
+      box-shadow: none;
+      font-size: 0.95rem;
+      padding: 11px 24px;
+    }
+
+    .btn-subtle:hover {
+      background: rgba(201, 138, 146, 0.12);
+      box-shadow: none;
+    }
+
+    /* PAGE 2: Letter Card */
+    .letter-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(201, 138, 146, 0.25);
+      border-radius: 20px;
+      padding: 34px 26px;
+      box-shadow: 0 14px 36px rgba(120, 88, 92, 0.08);
+      position: relative;
+    }
+
+    .letter-header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .letter-body p {
+      font-size: 1.03rem;
+      line-height: 1.72;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .letter-body p.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .letter-body p.greeting {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1.35rem;
+      color: var(--dusty-rose-dark);
+      margin-bottom: 18px;
+    }
+
+    .letter-body p.signoff {
+      margin-top: 20px;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: var(--dusty-rose-dark);
+    }
+
+    .letter-body p.rooting {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-style: italic;
+      color: var(--text-soft);
+      margin-bottom: 0;
+    }
+
+    .next-action-wrap {
+      text-align: center;
+      margin-top: 28px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+      pointer-events: none;
+    }
+
+    .next-action-wrap.revealed {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* PAGE 3: Final Note */
+    .final-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(201, 138, 146, 0.28);
+      border-radius: 22px;
+      padding: 44px 28px;
+      text-align: center;
+      box-shadow: 0 14px 36px rgba(120, 88, 92, 0.09);
+    }
+
+    .final-message {
+      font-size: 1.45rem;
+      line-height: 1.55;
+      color: var(--text-main);
+      margin: 16px 0 26px;
+    }
+
+    .divider {
+      width: 48px;
+      height: 1.5px;
+      background: var(--dusty-rose);
+      opacity: 0.45;
+      margin: 0 auto 20px;
+    }
+
+    @media (max-width: 400px) {
+      .welcome-title {
+        font-size: 1.75rem;
+      }
+      .letter-card {
+        padding: 28px 20px;
+      }
+      .letter-body p {
+        font-size: 0.98rem;
+      }
+      .final-message {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimal floating hearts background -->
+  <div class="floating-hearts" id="heartsContainer" aria-hidden="true"></div>
+
+  <main class="container">
+    <!-- PAGE 1: Welcome Screen -->
+    <section class="screen active visible" id="screen1">
+      <div class="welcome-card">
+        <!-- Delicate Botanical SVG -->
+        <svg class="floral-accent" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M15 34C35 28 50 26 60 26C70 26 85 28 105 34" stroke="#c98a92" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M60 26C60 17 55 11 60 6C65 11 60 17 60 26Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.2"/>
+          <path d="M44 28C41 21 35 18 31 20C33 25 39 28 44 28Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.2"/>
+          <path d="M76 28C79 21 85 18 89 20C87 25 81 28 76 28Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.2"/>
+          <circle cx="60" cy="26" r="2.5" fill="#c98a92"/>
+        </svg>
+
+        <h1 class="welcome-title serif">Hey, Eddie!</h1>
+        <p class="welcome-subtitle">I made something little for you…</p>
+
+        <div class="envelope-wrapper" id="envelope" role="button" tabindex="0" aria-label="Open envelope">
+          <div class="envelope-back"></div>
+          <div class="envelope-letter-preview">
+            <div class="preview-line" style="width: 55%;"></div>
+            <div class="preview-line" style="width: 80%;"></div>
+            <div class="preview-line" style="width: 70%;"></div>
+          </div>
+          <div class="envelope-front"></div>
+          <div class="envelope-flap"></div>
+          <div class="envelope-seal">♡</div>
+        </div>
+
+        <button class="btn" id="openBtn">Click to open ♡</button>
+      </div>
+    </section>
+
+    <!-- PAGE 2: Encouragement Letter -->
+    <section class="screen" id="screen2">
+      <article class="letter-card">
+        <div class="letter-header">
+          <svg class="floral-accent" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M22 32C40 27 52 25 60 25C68 25 80 27 98 32" stroke="#c98a92" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M60 25C60 17 56 12 60 8C64 12 60 17 60 25Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.1"/>
+            <circle cx="46" cy="27" r="2" fill="#c98a92" opacity="0.6"/>
+            <circle cx="74" cy="27" r="2" fill="#c98a92" opacity="0.6"/>
+          </svg>
+        </div>
+
+        <div class="letter-body" id="letterBody">
+          <p class="greeting">Hey, Eddie!</p>
+          <p>I know today is an important day for you, so I just wanted to send a little encouragement your way.</p>
+          <p>Take a deep breath, trust yourself, and remember how far you’ve come to get here.</p>
+          <p>Stay calm, think clearly, and give it your best. Don’t let the nerves get in your way!</p>
+          <p>Whatever the outcome, I hope you can be proud of yourself for making it this far.</p>
+          <p class="signoff">Good luck today, Eddie! ♡</p>
+          <p class="rooting">Someone is rooting for you!</p>
+        </div>
+
+        <div class="next-action-wrap" id="finalBtnWrap">
+          <button class="btn btn-subtle" id="lastThingBtn">One last thing…</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- PAGE 3: Final Interaction -->
+    <section class="screen" id="screen3">
+      <div class="final-card">
+        <svg class="floral-accent" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M30 30C45 26 54 25 60 25C66 25 75 26 90 30" stroke="#c98a92" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M60 25C60 17 56 12 60 8C64 12 60 17 60 25Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.1"/>
+          <path d="M47 27C44 21 39 19 36 21C38 25 43 27 47 27Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.1"/>
+          <path d="M73 27C76 21 81 19 84 21C82 25 77 27 73 27Z" fill="#f6e2e4" stroke="#c98a92" stroke-width="1.1"/>
+        </svg>
+
+        <div class="divider"></div>
+        <p class="final-message serif">Don’t forget to smile. You’ve got this! 🤍</p>
+        <button class="btn btn-subtle" id="replayBtn">Read again</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Create a few gentle floating hearts sparingly
+    const heartsContainer = document.getElementById("heartsContainer");
+    const heartSymbols = ["♡", "♥"];
+    const heartCount = 9;
+
+    for (let i = 0; i < heartCount; i++) {
+      const heart = document.createElement("span");
+      heart.className = "heart";
+      heart.textContent = heartSymbols[i % heartSymbols.length];
+      heart.style.left = Math.random() * 94 + 3 + "%";
+      heart.style.fontSize = Math.random() * 10 + 11 + "px";
+      heart.style.animationDuration = Math.random() * 8 + 11 + "s";
+      heart.style.animationDelay = Math.random() * 8 + "s";
+      heartsContainer.appendChild(heart);
+    }
+
+    // Screen transition helper
+    function showScreen(hideEl, showEl, callback) {
+      hideEl.classList.remove("visible");
+      setTimeout(() => {
+        hideEl.classList.remove("active");
+        showEl.classList.add("active");
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            showEl.classList.add("visible");
+            if (callback) callback();
+          });
+        });
+      }, 500);
+    }
+
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+    const screen3 = document.getElementById("screen3");
+
+    const envelope = document.getElementById("envelope");
+    const openBtn = document.getElementById("openBtn");
+    const lastThingBtn = document.getElementById("lastThingBtn");
+    const replayBtn = document.getElementById("replayBtn");
+
+    let isOpening = false;
+
+    function openEnvelope() {
+      if (isOpening) return;
+      isOpening = true;
+      envelope.classList.add("open");
+
+      setTimeout(() => {
+        showScreen(screen1, screen2, revealLetterParagraphs);
+      }, 850);
+    }
+
+    openBtn.addEventListener("click", openEnvelope);
+    envelope.addEventListener("click", openEnvelope);
+    envelope.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openEnvelope();
+      }
+    });
+
+    function revealLetterParagraphs() {
+      const paragraphs = document.querySelectorAll("#letterBody p");
+      const finalBtnWrap = document.getElementById("finalBtnWrap");
+
+      paragraphs.forEach((p, index) => {
+        setTimeout(() => {
+          p.classList.add("revealed");
+        }, index * 650);
+      });
+
+      setTimeout(() => {
+        finalBtnWrap.classList.add("revealed");
+      }, paragraphs.length * 650 + 300);
+    }
+
+    lastThingBtn.addEventListener("click", () => {
+      showScreen(screen2, screen3);
+    });
+
+    replayBtn.addEventListener("click", () => {
+      // Reset states so Eddie can replay smoothly
+      isOpening = false;
+      envelope.classList.remove("open");
+      document.querySelectorAll("#letterBody p").forEach((p) => p.classList.remove("revealed"));
+      document.getElementById("finalBtnWrap").classList.remove("revealed");
+      showScreen(screen3, screen1);
+    });
+  </script>
+</body>
+</html>
